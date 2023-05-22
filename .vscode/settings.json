@@ -1,5 +1,0 @@
-{
-    "rust-analyzer.linkedProjects": [
-        "./rust/wba_value/programs/wba_value/lib/Cargo.toml"
-    ]
-}

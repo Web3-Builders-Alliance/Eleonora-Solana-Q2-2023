@@ -3,3 +3,4 @@ target
 node_modules
 dev-wallet.json
 wba-wallet.json
+.vscode
