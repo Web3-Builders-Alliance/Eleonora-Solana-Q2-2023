@@ -12,7 +12,10 @@
     "vault_depositSpl": "ts-node ./vault_depositSpl.ts",
     "Vault_init": "ts-node ./Vault_init.ts",
     "vault_withdrawSpl": "ts-node ./vault_withdrawSpl.ts",
-    "vault_withdraw": "ts-node ./vault_withdraw.ts"
+    "vault_withdraw": "ts-node ./vault_withdraw.ts",
+    "nft_image": "ts-node ./images/nft_image.ts",
+    "nft_metadata": "ts-node ./nft_metadata.ts",
+    "nft_mint": "ts-node ./nft_mint.ts"
   },
   "dependencies": {
     "@project-serum/anchor": "^0.26.0",

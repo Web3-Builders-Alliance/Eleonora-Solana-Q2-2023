@@ -1,4 +1,4 @@
-import { Connection, Keypair, SystemProgram, PublicKey, LAMPORTS_PER_SOL,} from "@solana/web3.js"
+import { Connection, Keypair, SystemProgram, PublicKey} from "@solana/web3.js"
 import { Program, Wallet, AnchorProvider, Address, BN } from "@project-serum/anchor"
 import { WbaVault, IDL } from "../programs/wba_vault";
 import wallet from "../wba-wallet.json"

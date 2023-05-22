@@ -1,4 +1,4 @@
-import { Keypair, PublicKey, Connection, Commitment, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Keypair, PublicKey, Connection, Commitment} from "@solana/web3.js";
 import { getOrCreateAssociatedTokenAccount, transfer } from '@solana/spl-token';
 import wallet from "../wba-wallet.json"
 
