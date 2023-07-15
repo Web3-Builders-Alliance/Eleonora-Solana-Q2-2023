@@ -14,7 +14,7 @@ describe("lupo", () => {
 
   const commitment: Commitment = "confirmed"; // processed, confirmed, finalized
 
-  const programId = new PublicKey("JB8tSGwspD1rjBRiE9G6yuoSgwmSnpPSL2XcyLoeegn6");
+  const programId = new PublicKey("8FaDrHMnbmGYcatRTqtnEtYqtRP5F7cKpEhFHqk3maiY");
   const program = new anchor.Program<Lupo>(IDL, programId, anchor.getProvider());
 
   // Set up our keys

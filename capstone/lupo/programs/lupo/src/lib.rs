@@ -4,7 +4,7 @@ use anchor_spl::{token::{Token, TokenAccount, Mint, Transfer as SPLTransfer}, as
 
 // This is your program's public key and it will update
 // automatically when you build the project.
-declare_id!("JB8tSGwspD1rjBRiE9G6yuoSgwmSnpPSL2XcyLoeegn6");
+declare_id!("8FaDrHMnbmGYcatRTqtnEtYqtRP5F7cKpEhFHqk3maiY");
 
 mod errors;
 mod state;
