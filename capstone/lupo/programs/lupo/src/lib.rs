@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{token::{Token, TokenAccount, Mint, Transfer as SPLTransfer}, associated_token::AssociatedToken};
 
 
 // This is your program's public key and it will update
@@ -11,21 +10,17 @@ mod state;
 mod contexts;
 pub mod constants;
 
-use contexts::*;
-use state::*;
-use errors::*;
-
 #[program]
 mod hello_anchor {
 
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        unimplemented!()
+        Ok(())
     }
 
     pub fn create_game(ctx: Context<CreateGame>, title: String, seed: u64, id: u64) -> Result<()> {
-        require!(title.len() < 33);
+        require!(title.len() < 33, errors::PredictionError::InvalidTitle);
         ctx.accounts.game.id = id;
         ctx.accounts.game.bump = *ctx.bumps.get("game").unwrap();
         ctx.accounts.game.result = 0xff; // x = TIE, 1 = WIN, 2 = LOSS, 255 = unresolved
@@ -43,7 +38,7 @@ mod hello_anchor {
     }
 
     pub fn finalize_game(ctx: Context<FinalizeGame>, result: u8) -> Result<()> {
-        require!(result < 3);
+        require!(result < 3, errors::PredictionError::InvalidResult);
         //require signer to be the DAO contract
         ctx.accounts.game.result = result;
         // should move this to an external function that return a vault type depending on the result
@@ -67,10 +62,10 @@ mod hello_anchor {
         Ok(())
     }
 
-    pub fn make_prediction(ctx: Context<MakePrediction>, amount: u64) {
-        require!(*ctx.accounts.game.result == 0xff);
+    pub fn make_prediction(ctx: Context<MakePrediction>, amount: u64, result: u8) -> Result<()> {
+        require!(*ctx.accounts.game.result == 0xff, errors::PredictionError::InvalidResult);
         let current_bet = *ctx.accounts.prediction.amount;
-        ctx.accounts.prediction.amount = current_bet.checked_add(amount).ok_or(PredictionError::Overflow)?;
+        ctx.accounts.prediction.amount = current_bet.checked_add(amount).ok_or(errors::PredictionError::Overflow)?;
         ctx.accounts.prediction.result = result;
         ctx.accounts.prediction.bump = *ctx.bumps.get("prediction").unwrap();
         ctx.accounts.prediction.player = *ctx.accounts.player.key;
@@ -90,9 +85,9 @@ mod hello_anchor {
         Ok(())
     }
 
-    pub fn claim(ctx: Contect<Claim>) -> Result<()> {
+    pub fn claim(ctx: Contect<Claim>, player: Pubkey) -> Result<()> {
 
-        require!(*ctx.accounts.prediction.result == ctx.accounts.game.result && *ctx.accounts.prediction.control == 0 );
+        require!(*ctx.accounts.prediction.result == ctx.accounts.game.result && *ctx.accounts.prediction.control == 0, errors::PredictionError::InvalidResultOrControl);
         // check if user already claimed
         ctx.accounts.prediction.control = 1;
         let winning_amount = ctx.accounts.game.rate * ctx.accounts.prediction.amount;

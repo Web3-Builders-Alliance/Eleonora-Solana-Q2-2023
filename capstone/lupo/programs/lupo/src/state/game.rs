@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::constants::{ANCHOR_DISCRIMINATOR_BYTES, PUBKEY_BYTES, U64_BYTES, U8_BYTES, STRING_BYTES};
+use crate::constants::{ANCHOR_DISCRIMINATOR_BYTES, PUBKEY_BYTES, U64_BYTES, U8_BYTES};
 
 #[account]
 pub struct Game {
@@ -19,5 +19,5 @@ pub struct Game {
 }
 
 impl Game {
-    pub const LEN:usize = ANCHOR_DISCRIMINATOR_BYTES + 2 * PUBKEY_BYTES + 5 * U64_BYTES + 4 * U8_BYTES + STRING_BYTES;
+    pub const LEN:usize = ANCHOR_DISCRIMINATOR_BYTES + 2 * PUBKEY_BYTES + 6 * U64_BYTES + 4 * U8_BYTES + 1;
 }

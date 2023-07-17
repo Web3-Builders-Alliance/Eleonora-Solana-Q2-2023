@@ -1,14 +1,21 @@
-use std::collections::BTreeMap;
-
 use anchor_lang::prelude::*;
 use anchor_spl::{token::{Mint, TokenAccount, Token, Transfer, transfer}, associated_token::AssociatedToken};
 
-use crate::{state::{Game, Prediction, Global}, errors::PredictionError};
+use crate:: state::Game;
+
 
 
 #[derive(Accounts)]
 #[instruction(result: u8)]
 pub struct FinalizeGame<'info> { 
+    #[account(
+        seeds = [
+            creator.key().as_ref(),
+            game.id.to_le_bytes().as_ref()
+        ],
+        bump = game.bump
+    )]
+    pub game: Account<'info, Game>,
 
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -22,14 +29,13 @@ pub struct FinalizeGame<'info> {
 
     #[account(
         seeds = [b"auth"],
-        bump = game.bump
+        bump = game.auth_bump
     )]
 
     pub auth: UncheckedAccount<'info>,
     #[account(
-        payer = creator,
         seeds = [b"vault_DAO", game.key().as_ref()],
-        bump,
+        bump = game.vault_bump,
         token::mint = creator_token,
         token::authority = auth
     )]

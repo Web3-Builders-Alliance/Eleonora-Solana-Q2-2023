@@ -1,14 +1,21 @@
-use std::collections::BTreeMap;
-
 use anchor_lang::prelude::*;
 use anchor_spl::{token::{Mint, TokenAccount, Token, Transfer, transfer}, associated_token::AssociatedToken};
 
-use crate::{state::{Game, Prediction, Global}, errors::PredictionError};
+use crate::state::Game;
+
 
 
 #[derive(Accounts)]
 #[instruction(result: u8)]
-pub struct FinalizeGame<'info> { 
+pub struct Claim<'info> { 
+    #[account(
+        seeds = [
+            creator.key().as_ref(),
+            game.id.to_le_bytes().as_ref()
+        ],
+        bump = game.bump
+    )]
+    pub game: Account<'info, Game>,
 
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -27,6 +34,7 @@ pub struct FinalizeGame<'info> {
 
     pub auth: UncheckedAccount<'info>,
     #[account(
+        init_if_needed,
         payer = creator,
         seeds = [b"vault", game.key().as_ref()],
         bump,
@@ -44,7 +52,7 @@ pub struct FinalizeGame<'info> {
 }
 
 
-impl<'info> FinalizeGame<'info> {
+impl<'info> Claim<'info> {
     pub fn transfer_to_vault(
         &self,
         amount: u64

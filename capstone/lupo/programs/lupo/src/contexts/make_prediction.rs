@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{token::{Mint, TokenAccount, Token, Transfer, transfer}, associated_token::AssociatedToken};
+use anchor_spl::token::{TokenAccount, Token, Transfer, transfer};
 
-use crate::{state::{Game, Prediction, Global}, errors::PredictionError};
+use crate::state::{Game, Prediction};
 
 #[derive(Accounts)]
 #[instruction(result: u8)]

@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::constants::{ANCHOR_DISCRIMINATOR_BYTES, PUBKEY_BYTES, U64_BYTES, U8_BYTES, STRING_BYTES};
+use crate::constants::{ANCHOR_DISCRIMINATOR_BYTES, PUBKEY_BYTES, U64_BYTES, U8_BYTES};
 
 #[account]
 pub struct Prediction {
