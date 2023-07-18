@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{token::{Mint, TokenAccount, Token, Transfer, transfer}, associated_token::AssociatedToken};
 
-use crate:: state::Game;
+use crate:: state::{Game, Global};
 
 
 
@@ -17,6 +17,14 @@ pub struct FinalizeGame<'info> {
     )]
     pub game: Account<'info, Game>,
 
+    #[account(
+        seeds = [
+            vault_dao.key().as_ref()
+        ],
+        bump = global.bump
+    )]
+    pub global: Account<'info, Global>,
+
     #[account(mut)]
     pub creator: Signer<'info>,
     #[account(
@@ -29,21 +37,27 @@ pub struct FinalizeGame<'info> {
 
     #[account(
         seeds = [b"auth"],
-        bump = game.auth_bump
+        bump = game.bump
     )]
 
     pub auth: UncheckedAccount<'info>,
     #[account(
-        seeds = [b"vault_DAO", game.key().as_ref()],
-        bump = game.vault_bump,
+        init_if_needed,
+        payer = creator,
+        seeds = [b"vault", game.key().as_ref()],
+        bump,
         token::mint = creator_token,
         token::authority = auth
     )]
-    pub vault_dao: Account<'info, TokenAccount>,
+
+    pub vault: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub system_program: Program<'info, System>
+    pub system_program: Program<'info, System>,
+
+    #[account(mut)]
+    pub vault_dao: Account<'info, TokenAccount>
 }
 
 

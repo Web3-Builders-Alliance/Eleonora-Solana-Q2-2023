@@ -1,9 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{token::{Mint, TokenAccount, Token, Transfer, transfer}, associated_token::AssociatedToken};
 
-use crate::state::Game;
-
-
+use crate::state::{Prediction, Game};
 
 #[derive(Accounts)]
 #[instruction(result: u8)]
@@ -16,6 +14,15 @@ pub struct Claim<'info> {
         bump = game.bump
     )]
     pub game: Account<'info, Game>,
+
+    #[account(
+        seeds = [
+            game.key().as_ref(),
+            &[result]
+        ],
+        bump
+    )]
+    pub prediction: Account<'info, Prediction>,
 
     #[account(mut)]
     pub creator: Signer<'info>,
@@ -41,6 +48,7 @@ pub struct Claim<'info> {
         token::mint = creator_token,
         token::authority = auth
     )]
+
     pub vault: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,

@@ -1,40 +1,42 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, TokenAccount, Token};
 
-use crate:: state::Game;
+use crate:: state::Global;
+
 #[derive(Accounts)]
 #[instruction(id: u64)]
-pub struct CreateGame<'info> {
+pub struct Initialize<'info> {
     #[account(
         init,
         seeds = [
-            creator.key().as_ref(),
+            admin.key().as_ref(),
             id.to_le_bytes().as_ref()
         ],
-        payer = creator,
+        payer = admin,
         bump,
-        space = Game::LEN
+        space = Global::LEN
     )]
-    pub game: Account<'info, Game>,
-    #[account(seeds = [b"auth", game.key().as_ref()], bump)]
+    pub global: Account<'info, Global>,
+
+    #[account(seeds = [b"auth", global.key().as_ref()], bump)]
     pub auth: UncheckedAccount<'info>,
     #[account(
         init,
-        payer = creator,
+        payer = admin,
         seeds = [
-            b"vault",
-            game.key().as_ref(),
+            b"vault_dao",
+            global.key().as_ref(),
             usdc_mint.key().as_ref(),
         ],
         token::mint = usdc_mint,
-        token::authority = creator,
+        token::authority = admin,
         bump
     )]
-    pub vault: Account<'info, TokenAccount>,
+    pub vault_dao: Account<'info, TokenAccount>,
     pub usdc_mint: Account<'info, Mint>,
 
     #[account(mut)]
-    pub creator: Signer<'info>,
+    pub admin: Signer<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }

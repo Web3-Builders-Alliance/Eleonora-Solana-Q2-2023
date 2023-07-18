@@ -13,4 +13,10 @@ pub enum PredictionError {
 
     #[msg("Result is invalid or/and control is invalid")]
     InvalidResultOrControl,
+
+    #[msg("Prediction player not equal")]
+    PredictionPlayerNotEqual,
+
+    #[msg("You are not the creator")]
+    NotCreator
 }

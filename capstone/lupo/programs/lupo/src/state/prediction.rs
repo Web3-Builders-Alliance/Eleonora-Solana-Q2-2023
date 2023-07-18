@@ -3,11 +3,11 @@ use crate::constants::{ANCHOR_DISCRIMINATOR_BYTES, PUBKEY_BYTES, U64_BYTES, U8_B
 
 #[account]
 pub struct Prediction {
-    player: Pubkey,
-    result: u8,
-    amount: u64,
-    bump: u8,
-    control: u64,
+    pub player: Pubkey,
+    pub result: u8,
+    pub amount: u64,
+    pub bump: u8,
+    pub control: u64,
 }
 
 impl Prediction {

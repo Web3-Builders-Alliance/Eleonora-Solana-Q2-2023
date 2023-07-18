@@ -1,10 +1,12 @@
 use anchor_lang::prelude::*;
+use crate::constants::{ANCHOR_DISCRIMINATOR_BYTES, PUBKEY_BYTES, U8_BYTES};
 
 #[account]
 pub struct Global {
-    dao_vault: Pubkey,
+    pub admin: Pubkey,
+    pub bump: u8,
 }
 
 impl Global {
-    pub const LEN: usize = 8 + 32;
+    pub const LEN:usize = ANCHOR_DISCRIMINATOR_BYTES + PUBKEY_BYTES + U8_BYTES;
 }
