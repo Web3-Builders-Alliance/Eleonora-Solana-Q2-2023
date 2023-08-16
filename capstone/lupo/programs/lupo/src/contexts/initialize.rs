@@ -1,11 +1,13 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, TokenAccount, Token};
 
-use crate:: state::Global;
+use crate::state::Global;
+
 
 #[derive(Accounts)]
 #[instruction(id: u64)]
 pub struct Initialize<'info> {
+
     #[account(
         init,
         seeds = [
@@ -19,6 +21,7 @@ pub struct Initialize<'info> {
     pub global: Account<'info, Global>,
 
     #[account(seeds = [b"auth", global.key().as_ref()], bump)]
+    /// CHECK: This is not dangerous because this account doesn't exist
     pub auth: UncheckedAccount<'info>,
     #[account(
         init,
@@ -40,3 +43,8 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
 }
+
+
+
+
+

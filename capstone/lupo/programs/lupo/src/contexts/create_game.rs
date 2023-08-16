@@ -17,6 +17,8 @@ pub struct CreateGame<'info> {
     )]
     pub game: Account<'info, Game>,
     #[account(seeds = [b"auth", game.key().as_ref()], bump)]
+
+    /// CHECK: This is not dangerous because this account doesn't exist
     pub auth: UncheckedAccount<'info>,
     #[account(
         init,

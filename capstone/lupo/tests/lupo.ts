@@ -1,134 +1,91 @@
 import * as anchor from "@coral-xyz/anchor"
 import { BN } from "@coral-xyz/anchor"
-import { AnchorEscrow2023Timed, IDL } from "../target/types/Lupo"
+import { Lupo, IDL } from "../target/types/lupo"
 import { PublicKey, Commitment, Keypair, SystemProgram } from "@solana/web3.js"
 import { ASSOCIATED_TOKEN_PROGRAM_ID as associatedTokenProgram, TOKEN_PROGRAM_ID as tokenProgram, createMint, createAccount, mintTo, getAssociatedTokenAddress } from "@solana/spl-token"
-import { randomBytes } from "crypto"
 import { assert } from "chai"
+import wallet from "../wallet.json"
 
 const commitment: Commitment = "confirmed"
 
 describe("lupo", () => {
-  // Configure the client to use the local cluster.
+
+  const admin = Keypair.fromSecretKey(new Uint8Array(wallet));
+  const connection = new anchor.web3.Connection("http://localhost:8899");
   anchor.setProvider(anchor.AnchorProvider.env());
+  const provider = new anchor.AnchorProvider(connection, new anchor.Wallet(admin), { commitment: "finalized" } );
 
-  const commitment: Commitment = "confirmed"; // processed, confirmed, finalized
+ 
 
-  const programId = new PublicKey("8FaDrHMnbmGYcatRTqtnEtYqtRP5F7cKpEhFHqk3maiY");
+  // Program address
+  const programId = new anchor.web3.PublicKey("CwWDEWrgBhJMt6Z23msSFQUZ2B2axptwFsmEFa5dW9dT");
+
+  // Create program
   const program = new anchor.Program<Lupo>(IDL, programId, anchor.getProvider());
 
-  // Set up our keys
-  const creator = new Keypair();
-  const player = new Keypair();
+  // Create PDA VAULT STATE
+  const vaultState =anchor.web3.Keypair.generate();
 
-  // Random seed
-  const seed = new BN(randomBytes(8));
-  
-  // PDAs
-  const auth = PublicKey.findProgramAddressSync([Buffer.from("auth")], program.programId)[0];
+  // Create PDA VAULT AUTH
+  const vault_auth_seeds = [Buffer.from("auth"), vaultState.publicKey.toBuffer()];
+  const vault_auth = anchor.web3.PublicKey.findProgramAddressSync(vault_auth_seeds, program.programId)[0];
 
+  // Create Vault system Program
+  const vault_seeds = [Buffer.from("vault"), vault_auth.toBuffer()];
+  const vaultDao = anchor.web3.PublicKey.findProgramAddressSync(vault_seeds, program.programId)[0];
 
-  // Mints
-  let creator_token: PublicKey;
-  let player_token: PublicKey;
+  const global = PublicKey.findProgramAddressSync([Buffer.from("global"), admin.publicKey.toBytes()], program.programId)[0];
 
-  // ATAs
-  let creator_ata: PublicKey;
-  let player_ata: PublicKey;
-  
-  it("Airdrop", async () => {
-    await Promise.all([creator].map(async (c) => {
-      return await anchor.getProvider().connection.requestAirdrop(c.publicKey, 100 * anchor.web3.LAMPORTS_PER_SOL)
-    })).then(confirmTxs);
-  });
+  const game = PublicKey.findProgramAddressSync([Buffer.from("game"), admin.publicKey.toBytes()], program.programId)[0];
 
-  it("Mint creator tokens", async () => {
-    // Create mints and ATAs
-    let [c , p] = await Promise.all([creator, player].map(async(a) => { return await newMintToAta(anchor.getProvider().connection, a) }))
-    creator_token = c.mint;
-    creator_ata = c.ata;
-    player_token = p.mint;
-    player_ata = p.ata;
+  let title ="Game1";
+
+  it("Is initialized!", async () => {
+    // Add your test here.
+        const txhash = await program.methods
+        .initialize()
+        .accounts({
+            global,
+            auth: vault_auth,
+            vaultDao,
+            usdcMint: vaultState.publicKey,
+            admin: admin.publicKey,
+            tokenProgram,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([
+            admin,
+            vaultState,
+          ]).rpc();
+          console.log(`Success! ${txhash}`);
   })
 
-  it("Make a prediction", async () => {
-    const signature = await program.methods
-    .make_prediction(
-      seed,
-      new anchor.BN(10 * 1e6),
-      new anchor.BN(20 * 1e6),
-      new anchor.BN(10_000),
-    )
-    .accounts({
-      creator: creator.publicKey,
-      creatorAta: creator_ata,
-      player: player.publicKey,
-      playerAta: player_ata,
-      auth,
-      tokenProgram,
-      associatedTokenProgram,
-      systemProgram: SystemProgram.programId
-    })
-    .signers(
-      [
-        player
-      ]
-    )
-    .rpc()
-    await(confirmTx);
-  });
-
-  it("Claim", async () => {
-    const signature = await program.methods
-    .claim(
-      seed,
-      new anchor.BN(10 * 1e6),
-      new anchor.BN(20 * 1e6),
-      new anchor.BN(10_000),
-    )
-    .accounts({
-      creator: creator.publicKey,
-      creatorAta: creator_ata,
-      player: player.publicKey,
-      playerAta: player_ata,
-      auth,
-      tokenProgram,
-      associatedTokenProgram,
-      systemProgram: SystemProgram.programId
-    })
-    .signers(
-      [
-        creator
-      ]
-    )
-    .rpc()
-    await(confirmTx);
-  });
+  it("Create Game!", async () => {
+    // Add your test here.
+        const txhash = await program.methods
+        .createGame(title, new anchor.BN(10 * 1e6))
+        .accounts({
+            game,
+            auth: vault_auth,
+            vault: vaultDao,
+            usdcMint: vaultState.publicKey,
+            creator: admin.publicKey,
+            tokenProgram,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([
+            admin,
+            vaultState,
+          ]).rpc();
+          console.log(`Success! ${txhash}`);
+  })
+  
+  //player
+  //creator == admin
+  //create_game
+  //make_prediction
+  //finalize_game
+  //claim
+  
 });
 
-const confirmTx = async (signature: string) => {
-  const latestBlockhash = await anchor.getProvider().connection.getLatestBlockhash();
-  await anchor.getProvider().connection.confirmTransaction(
-    {
-      signature,
-      ...latestBlockhash,
-    },
-    commitment
-  )
-}
-
-const confirmTxs = async (signatures: string[]) => {
-  await Promise.all(signatures.map(confirmTx))
-}
-
-const newMintToAta = async (connection, minter: Keypair): Promise<{ mint: PublicKey, ata: PublicKey }> => { 
-  const mint = await createMint(connection, minter, minter.publicKey, null, 6)
-  // await getAccount(connection, mint, commitment)
-  const ata = await createAccount(connection, minter, mint, minter.publicKey)
-  const signature = await mintTo(connection, minter, mint, ata, minter, 21e8)
-  await confirmTx(signature)
-  return {
-    mint,
-    ata
-  }
-}

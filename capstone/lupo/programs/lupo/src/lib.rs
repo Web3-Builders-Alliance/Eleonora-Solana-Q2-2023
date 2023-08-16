@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 
 // This is your program's public key and it will update
 // automatically when you build the project.
-declare_id!("8FaDrHMnbmGYcatRTqtnEtYqtRP5F7cKpEhFHqk3maiY");
+declare_id!("CwWDEWrgBhJMt6Z23msSFQUZ2B2axptwFsmEFa5dW9dT");
 
 mod errors;
 mod state;
@@ -13,14 +13,13 @@ mod constants;
 use contexts::*;
 
 #[program]
-mod hello_anchor {
+pub mod lupo {
 
     use super::*;
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-
-        ctx.accounts.global.bump = *ctx.bumps.get("global").unwrap();
         ctx.accounts.global.admin = *ctx.accounts.admin.key;
+        ctx.accounts.global.bump = *ctx.bumps.get("vault_auth").unwrap();
         Ok(())
     }
 

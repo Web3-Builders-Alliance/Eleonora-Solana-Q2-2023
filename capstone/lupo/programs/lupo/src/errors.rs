@@ -18,5 +18,8 @@ pub enum PredictionError {
     PredictionPlayerNotEqual,
 
     #[msg("You are not the creator")]
-    NotCreator
+    NotCreator,
+
+    #[msg("Transfer Failed")]
+    TransferFailed
 }

@@ -39,6 +39,7 @@ pub struct Claim<'info> {
         bump = game.bump
     )]
 
+    /// CHECK: This is not dangerous because this account doesn't exist
     pub auth: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
@@ -73,5 +74,6 @@ impl<'info> Claim<'info> {
         };
         let ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
         transfer(ctx, amount)
+       
     }
 }

@@ -40,6 +40,7 @@ pub struct FinalizeGame<'info> {
         bump = game.bump
     )]
 
+    /// CHECK: This is not dangerous because this account doesn't exist
     pub auth: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
